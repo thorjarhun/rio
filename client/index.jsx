@@ -17,8 +17,6 @@ var routes = (
     </Route>
 );
 
-Router.run(routes, Router.HistoryLocation, function(Handler){
-   React.render(<Handler/>, document.body)
-});
+Router.run(routes, Router.HistoryLocation, Handler => React.render(<Handler/>, document.body));
 
 // <ListsShow title={Store.lists[0].title} items={Store.lists[0].items} />

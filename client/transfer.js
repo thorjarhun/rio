@@ -7,10 +7,10 @@ var socket = io();
 var Transfer = module.exports = {};
 
 Transfer.setup = function setup(socket){
-    socket.on(Constants.listChange,function(change){
+    socket.on(Constants.listChange,(change) => {
         Store.listChange.onNext(change);
     });
-    socket.on(Constants.taskChange,function(change){
+    socket.on(Constants.taskChange,(change) => {
         Store.taskChange.onNext(change);
     });
     function emit(address, data){
@@ -28,46 +28,46 @@ Transfer.setup = function setup(socket){
     Store.listDelete.skip(1).subscribe(R.partial(emit,Constants.listDelete));
     // User management
     Store.signInRequest.skip(1).subscribe(R.partial(emit,Constants.signInRequest));
-    socket.on(Constants.signInResult,function(result){
+    socket.on(Constants.signInResult, (result) => {
         Store.signInResult.onNext(result);
     });
     Store.joinRequest.skip(1).subscribe(R.partial(emit,Constants.joinRequest));
-    socket.on(Constants.joinResult, function(result){
-        console.log(Constants.joinResult,result);
+    socket.on(Constants.joinResult, (result) => {
+        console.log(Constants.joinResult, result);
         Store.joinResult.onNext(result);
-        console.log('after',Constants.joinResult,result);
+        console.log('after', Constants.joinResult, result);
     });
-    Store.user.subscribe(function(user){
-        Store.allLists.onNext(filtered(Store.allLists.value,user.id));
-        Store.allTasks.onNext(filtered(Store.allTasks.value,user.id));
-        emit(Constants.sendAll,user);
+    Store.user.subscribe((user) => {
+        Store.allLists.onNext(filtered(Store.allLists.value, user.id));
+        Store.allTasks.onNext(filtered(Store.allTasks.value, user.id));
+        emit(Constants.sendAll, user);
     });
 };
 
 Transfer.setup(socket);
 
-Store.listChange.skip(1).subscribe(function(change){
-    if(!change.new_val) { // DELETE
+Store.listChange.skip(1).subscribe((change) => {
+    if (!change.new_val) { // DELETE
         Store.allLists.onNext(Store.allLists.value.delete(change.old_val.id));
     } else { // READ, UPDATE
         Store.allLists.onNext(Store.allLists.value.set(change.new_val.id, change.new_val));
     }
 });
 
-Store.taskChange.skip(1).subscribe(function(change){
-    if(!change.new_val) { // DELETE
+Store.taskChange.skip(1).subscribe((change) => {
+    if (!change.new_val) { // DELETE
         Store.allTasks.onNext(Store.allTasks.value.delete(change.old_val.id));
     } else { // READ, UPDATE
         Store.allTasks.onNext(Store.allTasks.value.set(change.new_val.id, change.new_val));
     }
 });
 
-Store.signInResult.skip(1).subscribe(function(d){
+Store.signInResult.skip(1).subscribe((d) => {
     Store.user.onNext(d);
 });
 
 function filtered(map,user){
-    return map.filter(function(d){
+    return map.filter((d) => {
         return d.user == user;
     });
 }

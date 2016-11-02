@@ -1,10 +1,9 @@
 var R = require('ramda');
 var Constants = require('../lib/constants');
 
-
 var lists = [
     {
-        user:Constants.user.id,
+        user: Constants.user.id,
         name: "Meteor Principles",
         items: ["Data on the Wire",
             "One Language",
@@ -16,7 +15,7 @@ var lists = [
         ]
     },
     {
-        user:Constants.user.id,
+        user: Constants.user.id,
         name: "Languages",
         items: ["Lisp",
             "C",
@@ -30,7 +29,7 @@ var lists = [
         ]
     },
     {
-        user:Constants.user.id,
+        user: Constants.user.id,
         name: "Favorite Scientists",
         items: ["Ada Lovelace",
             "Grace Hopper",
@@ -42,23 +41,18 @@ var lists = [
     }
 ];
 
-exports.lists = R.map(R.pick(['name','user']),lists);
+exports.lists = lists.map(R.pick(['name','user']));
 
-exports.tasks = function (dbLists) {
-    console.log(dbLists);
-    return R.reduce(function(acc,d) {
-        return acc.concat(R.map(function (e) {
-            var dbList = R.find(function(dbEntry){
-                return dbEntry.name == d.name;
-            },dbLists);
+exports.tasks = dbLists => {
+    console.log('dbLists: ', dbLists);
+    return lists.reduce((acc, d) => {
+        return acc.concat(d.items.map(e => {
             return {
                 user: Constants.user.id,
-                list: dbList.id,
+                list: dbLists.find(x => x.name === d.name).id,
                 item: e,
                 done: false
-            }
-        }, d.items));
-    },[],lists);
+            };
+        }));
+    },[]);
 };
-
-

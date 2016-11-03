@@ -7,16 +7,11 @@ module.exports = {
     module: {
         loaders: [
             {
-                test: /\.jsx$/,
-                loader: 'babel-loader'
+                test: /\.js.?$/,
+                loader: 'babel-loader',
+                exclude: /node_modules/
             }
         ]
-    },
-    externals: {
-        'react': 'React',
-        'rx':'Rx',
-        'ramda':'R',
-        'immutable':'Immutable'
     },
     resolve: {
         extensions: ['','.js','.jsx']

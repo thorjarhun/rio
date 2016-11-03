@@ -1,52 +1,43 @@
-var Store= require('../lib/store');
-var Ramda = require('ramda');
-var Constants = require('../lib/constants');
+import Store from '../lib/store';
+import R from 'ramda';
+import Constants from '../lib/constants';
+import io from 'socket.io-client';
 
 var socket = io();
 
-var Transfer = module.exports = {};
+socket.on(Constants.listChange, change => Store.listChange.onNext(change));
+socket.on(Constants.taskChange, change => Store.taskChange.onNext(change));
+function emit(address, data){
+    console.log(address,data);
+    socket.emit(address, R.merge(data,{ user: Store.user.value.id}));
+    console.log('after emit',address,data);
+}
 
-Transfer.setup = function setup(socket){
-    socket.on(Constants.listChange,(change) => {
-        Store.listChange.onNext(change);
-    });
-    socket.on(Constants.taskChange,(change) => {
-        Store.taskChange.onNext(change);
-    });
-    function emit(address, data){
-        console.log(address,data);
-        socket.emit(address, R.merge(data,{ user: Store.user.value.id}));
-        console.log('after emit',address,data);
-    }
+Store.taskCreate.skip(1).subscribe(R.partial(emit,Constants.taskCreate));
+Store.taskUpdate.skip(1).subscribe(R.partial(emit,Constants.taskUpdate));
+Store.taskDelete.skip(1).subscribe(R.partial(emit,Constants.taskDelete));
 
-    Store.taskCreate.skip(1).subscribe(R.partial(emit,Constants.taskCreate));
-    Store.taskUpdate.skip(1).subscribe(R.partial(emit,Constants.taskUpdate));
-    Store.taskDelete.skip(1).subscribe(R.partial(emit,Constants.taskDelete));
+Store.listCreate.skip(1).subscribe(R.partial(emit,Constants.listCreate));
+Store.listUpdate.skip(1).subscribe(R.partial(emit,Constants.listUpdate));
+Store.listDelete.skip(1).subscribe(R.partial(emit,Constants.listDelete));
+// User management
+Store.signInRequest.skip(1).subscribe(R.partial(emit,Constants.signInRequest));
+socket.on(Constants.signInResult, result => {
+    Store.signInResult.onNext(result);
+});
+Store.joinRequest.skip(1).subscribe(R.partial(emit,Constants.joinRequest));
+socket.on(Constants.joinResult, result => {
+    console.log(Constants.joinResult, result);
+    Store.joinResult.onNext(result);
+    console.log('after', Constants.joinResult, result);
+});
+Store.user.subscribe(user => {
+    Store.allLists.onNext(filtered(Store.allLists.value, user.id));
+    Store.allTasks.onNext(filtered(Store.allTasks.value, user.id));
+    emit(Constants.sendAll, user);
+});
 
-    Store.listCreate.skip(1).subscribe(R.partial(emit,Constants.listCreate));
-    Store.listUpdate.skip(1).subscribe(R.partial(emit,Constants.listUpdate));
-    Store.listDelete.skip(1).subscribe(R.partial(emit,Constants.listDelete));
-    // User management
-    Store.signInRequest.skip(1).subscribe(R.partial(emit,Constants.signInRequest));
-    socket.on(Constants.signInResult, (result) => {
-        Store.signInResult.onNext(result);
-    });
-    Store.joinRequest.skip(1).subscribe(R.partial(emit,Constants.joinRequest));
-    socket.on(Constants.joinResult, (result) => {
-        console.log(Constants.joinResult, result);
-        Store.joinResult.onNext(result);
-        console.log('after', Constants.joinResult, result);
-    });
-    Store.user.subscribe((user) => {
-        Store.allLists.onNext(filtered(Store.allLists.value, user.id));
-        Store.allTasks.onNext(filtered(Store.allTasks.value, user.id));
-        emit(Constants.sendAll, user);
-    });
-};
-
-Transfer.setup(socket);
-
-Store.listChange.skip(1).subscribe((change) => {
+Store.listChange.skip(1).subscribe(change => {
     if (!change.new_val) { // DELETE
         Store.allLists.onNext(Store.allLists.value.delete(change.old_val.id));
     } else { // READ, UPDATE
@@ -54,7 +45,7 @@ Store.listChange.skip(1).subscribe((change) => {
     }
 });
 
-Store.taskChange.skip(1).subscribe((change) => {
+Store.taskChange.skip(1).subscribe(change => {
     if (!change.new_val) { // DELETE
         Store.allTasks.onNext(Store.allTasks.value.delete(change.old_val.id));
     } else { // READ, UPDATE

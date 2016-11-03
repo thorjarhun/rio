@@ -1,19 +1,19 @@
-var { Link} = require('react-router');
+import React from 'react';
+import { Link } from 'react-router';
+import Store from '../../lib/store';
+import Constants from '../../lib/constants';
 
-var Store = require('../../lib/store');
-var Constants = require('../../lib/constants');
-
-var User = module.exports = React.createClass({
-    getInitialState: function () {
+export default React.createClass({
+    displayName: 'User',
+    getInitialState() {
         return Store.user.value;
     },
-    componentWillMount: function () {
-
-        this.onLogout = function(){
+    componentWillMount() {
+        this.onLogout = () => {
             Store.user.onNext(Constants.user);
         }
     },
-    render: function () {
+    render() {
         return this.state.email === '' ?
             (<div className="btns-group">
                 <Link to="/signin" className="btn-secondary">Sign In</Link>
@@ -21,18 +21,17 @@ var User = module.exports = React.createClass({
             </div>) :
             (<div className="btns-group-vertical">
                 <a className="js-user-menu btn-secondary" href="#">
-                    <span className="icon-arrow-up"></span>
+                    <span className="icon-arrow-up"/>
                     {this.state.email}
                 </a>
                 <a className='js-logout btn-secondary' onClick={this.onLogout}>LOGOUT</a>
             </div>);
     },
-    componentDidMount: function(){
-        Store.user.skip(1).subscribe(function(user){
-            console.log('User componentWillMount',user);
+    componentDidMount() {
+        Store.user.skip(1).subscribe(user => {
+            console.log('User componentWillMount', user);
             this.setState(user);
-        }.bind(this));
+        });
     }
-
 });
 

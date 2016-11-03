@@ -35,6 +35,8 @@ Store.listDelete.skip(1).subscribe(Db.listDelete);
 
 const toChange = R.map(entry => entry.hasOwnProperty('old_val') ? entry : {old_val: null, new_val: entry});
 
+// client sends 'create', 'update', 'delete'
+// server responds 'update'
 function listen(socket) {
     socket.on(Constants.sendAll, function sendAll(user) {
         Db.allLists(user.id, (err, res) => {

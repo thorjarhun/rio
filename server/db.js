@@ -3,7 +3,6 @@ var R = require('ramda');
 var data = require('./data');
 var Constants = require('../lib/constants');
 
-
 var r = require('rethinkdbdash')({
     host: 'localhost',
     port: 28015,
@@ -12,11 +11,9 @@ var r = require('rethinkdbdash')({
 
 var Db = module.exports = {};
 
-
 Db.allTasks = (userId, cb) => r.db('rio').table('task').filter({user: userId}).run(cb);
 
 Db.allLists = (userId, cb) => r.db('rio').table('list').filter({user: userId}).run(cb);
-
 
 function logError(err) {
     if (err) console.log(err);
@@ -32,21 +29,13 @@ Db.createEntry = (table, data) => {
 };
 
 
-Db.taskUpdate = (task) => {
-    r.db('rio').table('task').get(task.id).update(task).run(logError);
-};
+Db.taskUpdate = task => r.db('rio').table('task').get(task.id).update(task).run(logError);
 
-Db.taskDelete = (task) => {
-    r.db('rio').table('task').get(task.id).delete().run(logError);
-};
+Db.taskDelete = task => r.db('rio').table('task').get(task.id).delete().run(logError);
 
-Db.listUpdate = (info) => {
-    r.db('rio').table('list').get(info.id).update({name: info.name}).run(logError);
-};
+Db.listUpdate = info => r.db('rio').table('list').get(info.id).update({name: info.name}).run(logError);
 
-Db.listDelete = (data) => {
-    r.db('rio').table('list').get(data.id).delete().run(logError);
-};
+Db.listDelete = data => r.db('rio').table('list').get(data.id).delete().run(logError);
 
 Db.signIn = function signIn(info, cb) {
     r.db('rio').table('user').filter(R.pick(['email', 'password'], info))
@@ -76,14 +65,14 @@ Db.join = function join(info, cb) {
 
 Db.setup = function setup(mainCallback) {
     async.waterfall([
-        (callback) => {
+        callback => {
             r.dbList().run((err, res) => {
                 callback(err, res);
             });
         },
         (databases, callback) => {
             if (databases.indexOf('rio') == -1) {
-                r.dbCreate('rio').run((err) => {
+                r.dbCreate('rio').run((err, res) => {
                     callback(err, true);
                 });
             } else {

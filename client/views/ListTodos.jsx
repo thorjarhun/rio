@@ -1,39 +1,37 @@
-var Link = require('react-router').Link;
-var Store = require('../../lib/store');
+import React from 'react';
+import { Link } from 'react-router';
+import Immutable from 'immutable';
+import R from 'ramda';
+import Store from '../../lib/store';
 
-
-var ListTodos = module.exports = React.createClass({
-    getInitialState: function(){
+export default React.createClass({
+    displayName: 'ListTodos',
+    getInitialState(){
         return {
             lists: Immutable.Map({}),
             tasks: Immutable.Map({})
         }
     },
-    componentWillMount : function(){
-        Store.allLists.subscribe(function(lists){
-            this.setState({ lists: lists });
-        }.bind(this));
-        Store.allTasks.subscribe(function(tasks){
-            this.setState({ tasks: tasks });
-        }.bind(this));
-        this.onCreateList = function(){            
-            Store.listCreate.onNext({
-                user: '',
-                name: 'List '+Math.random().toFixed(3).toString()
-            });
-        }
+    componentWillMount(){
+        Store.allLists.subscribe(lists => this.setState({ lists }));
+        Store.allTasks.subscribe(tasks => this.setState({ tasks }));
     },
-    render: function () {
-        var pairs=R.toPairs( R.groupBy(R.prop('id'),this.state.lists.toArray()));
+    onCreateList() {
+        Store.listCreate.onNext({
+            user: '',
+            name: 'List ' + Math.random().toFixed(3).toString()
+        })
+    },
+    render() {
+        var pairs=R.toPairs(R.groupBy(R.prop('id'),this.state.lists.toArray()));
         var tasksGrouped=R.groupBy(R.prop('list'),this.state.tasks.toArray());
-        var items = pairs.map(function(pair){
+        var items = pairs.map(pair => {
             var key = pair[0];
             var count =  tasksGrouped.hasOwnProperty(key) ?
                 R.reject(R.prop('done'), tasksGrouped[key]).length : 0;
             return (
-                <Link to="tasks"
+                <Link to={`/tasks/${key}`}
                       key={key}
-                      params={{name:key}}
                       className="list-todo">
                     <span className="count-list">{count}</span>
                     {pair[1][0].name}
@@ -43,7 +41,7 @@ var ListTodos = module.exports = React.createClass({
         return (
             <div className="list-todos">
                 <a className="js-new-list link-list-new" onClick={this.onCreateList}>
-                    <span className="icon-plus"></span>New List</a>
+                    <span className="icon-plus"/>New List</a>
                 {items}
             </div>
         );

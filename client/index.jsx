@@ -1,22 +1,22 @@
-var Router = require('react-router');
-var { Route, Redirect, RouteHandler, DefaultRoute, Link} = Router;
+import React from 'react';
+import { render } from 'react-dom';
+import { Router, Route, Link, browserHistory, IndexRoute } from 'react-router';
 
-var App = require('./views/App');
-var SignIn = require('./views/SignIn');
-var Join = require('./views/Join');
-var Tasks = require('./views/list/Tasks');
-var Transfer = require('./transfer');
-
+import App from './views/App';
+import SignIn from './views/SignIn';
+import Join from './views/Join';
+import Tasks from './views/list/Tasks';
+import './transfer';
 
 var routes = (
-    <Route handler={App}>
-        <DefaultRoute handler={Tasks}/>
-        <Route name="tasks" path="/tasks/:name" handler={Tasks}/>
-        <Route name="signin" path="signin" handler={SignIn}/>
-        <Route name="join" path="join" handler={Join}/>
+    <Route path="/" component={App}>
+        <IndexRoute component={Tasks}/>
+        <Route path="/tasks/:name" component={Tasks}/>
+        <Route path="signin" component={SignIn}/>
+        <Route path="join" component={Join}/>
     </Route>
 );
 
-Router.run(routes, Router.HistoryLocation, Handler => React.render(<Handler/>, document.body));
+render(<Router history={browserHistory}>{routes}</Router>, document.getElementById('app'));
 
 // <ListsShow title={Store.lists[0].title} items={Store.lists[0].items} />

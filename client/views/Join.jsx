@@ -1,48 +1,49 @@
-var Link = require('react-router').Link;
-var Util = require('../../lib/util');
-var Store = require('../../lib/store');
+import React from 'react';
+import { Link } from 'react-router';
+import Util from '../../lib/util';
+import Store from '../../lib/store';
 
-var Join = module.exports = React.createClass({
+export default React.createClass({
+    displayName: 'Join',
     contextTypes: {
         router: React.PropTypes.func
     },
-    getInitialState: function(){
-      return { errors: []};
+    getInitialState() {
+      return { errors: [] };
     },
-    componentWillMount: function(){
-        Store.joinResult.skip(1).subscribe(function(res){
+    componentWillMount() {
+        Store.joinResult.skip(1).subscribe(res => {
             if(res.hasOwnProperty('errors')){
                 this.setState({ errors: res.errors });
             } else {
                 Store.user.onNext(res);
                 this.context.router.transitionTo('/');
             }
-        }.bind(this));
-        this.onJoin = function(e){
-            e.preventDefault();
-            var errors = validateJoin(this.refs.email.value,
-                this.refs.password.value, this.refs.confirm.value);
-            if(errors.length)  {
-                this.setState({errors: errors});
-            } else {
-                var email = React.findDOMNode(this.refs.email).value;
-                var password = React.findDOMNode(this.refs.password).value;
-                console.log('onJoin',email,password);
-                Store.joinRequest.onNext({
-                    email: email,
-                    password: password
-                });
-            }
-        }.bind(this);
+        });
     },
-
-    render: function () {
+    onJoin(e) {
+        e.preventDefault();
+        var errors = validateJoin(this.refs.email.value,
+            this.refs.password.value, this.refs.confirm.value);
+        if(errors.length)  {
+            this.setState({errors: errors});
+        } else {
+            var email = React.findDOMNode(this.refs.email).value;
+            var password = React.findDOMNode(this.refs.password).value;
+            console.log('onJoin',email,password);
+            Store.joinRequest.onNext({
+                email,
+                password
+            });
+        }
+    },
+    render() {
         return (
             <div className="page auth">
                 <nav>
                     <div className="nav-group">
                         <a href="#" className="js-menu nav-item">
-                            <span className="icon-list-unordered"></span>
+                            <span className="icon-list-unordered"/>
                         </a>
                     </div>
                 </nav>
@@ -53,17 +54,15 @@ var Join = module.exports = React.createClass({
                         <form onSubmit={this.onJoin}>
                             <div className="input-symbol">
                                 <input type="email" name="email" ref='email' placeholder="Your Email"/>
-                                <span className="icon-email" title="Your Email"></span>
+                                <span className="icon-email" title="Your Email"/>
                             </div>
                             <div className="input-symbol">
-                                <input type="password" name="password" ref='password'
-                                       placeholder="Password"/>
-                                <span className="icon-lock" title="Password"></span>
+                                <input type="password" name="password" ref='password' placeholder="Password"/>
+                                <span className="icon-lock" title="Password"/>
                             </div>
                             <div className="input-symbol">
-                                <input type="password" name="confirm" ref='confirm'
-                                       placeholder="Confirm Password"/>
-                                <span className="icon-lock" title="Confirm Password"></span>
+                                <input type="password" name="confirm" ref='confirm' placeholder="Confirm Password"/>
+                                <span className="icon-lock" title="Confirm Password"/>
                             </div>
                             <button type="submit" className="btn-primary">Join Now</button>
                         </form>

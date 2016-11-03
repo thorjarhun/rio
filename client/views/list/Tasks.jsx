@@ -1,27 +1,23 @@
-var Store = require('../../../lib/store');
-var TaskItems = require('./TaskItems.jsx');
-var ListName = require('./ListName.jsx');
+import React from 'react';
+import R from 'ramda';
+import Store from '../../../lib/store';
+import TaskItems from './TaskItems';
+import ListName from './ListName';
 
-var Tasks = module.exports = React.createClass({
-    contextTypes: {
-        router: React.PropTypes.func
-    },
-    getInitialState: function () {
+export default React.createClass({
+    displayName: 'Tasks',
+    getInitialState() {
         return {
             lists: Store.allLists.value,
             tasks: Store.allTasks.value
-        }
+        };
     },
-    componentWillMount: function () {
-        Store.allLists.subscribe(function (lists) {
-            this.setState({lists: lists});
-        }.bind(this));
-        Store.allTasks.subscribe(function (tasks) {
-            this.setState({tasks: tasks});
-        }.bind(this));
+    componentWillMount() {
+        Store.allLists.subscribe(lists => this.setState({lists}));
+        Store.allTasks.subscribe(tasks => this.setState({tasks}));
     },
-    render: function () {
-        var nameParam = this.context.router.getCurrentParams().name;
+    render() {
+        var nameParam = this.props.params.name;
         if (!nameParam && this.state.lists.count() > 0) {
             nameParam = this.state.lists.first().id;
         }

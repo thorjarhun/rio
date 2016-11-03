@@ -1,34 +1,34 @@
-var Link = require('react-router').Link;
-var Store = require('../../lib/store');
+import React from 'react';
+import { Link } from 'react-router';
+import Store from '../../lib/store';
 
-var SignIn = module.exports = React.createClass({
+export default React.createClass({
+    displayName: 'SignIn',
     contextTypes: {
         router: React.PropTypes.func
     },
-    getInitialState: function () {
+    getInitialState() {
         return {
-            enabled : false,
+            enabled: false,
             errors: []
-        }
+        };
     },
-    componentWillMount: function () {
-        this.onSignIn = function(e){
-            e.preventDefault();
-            var email = React.findDOMNode(this.refs.email).value;
-            var password = React.findDOMNode(this.refs.password).value;
-            Store.signInRequest.onNext({
-                email: email,
-               password: password
-            });
-        }.bind(this);
+    onSignIn(e) {
+        e.preventDefault();
+        var email = React.findDOMNode(this.refs.email).value;
+        var password = React.findDOMNode(this.refs.password).value;
+        Store.signInRequest.onNext({
+            email,
+            password
+        });
     },
-    render: function () {
+    render() {
         return (
             <div className="page auth">
                 <nav>
                     <div className="nav-group">
                         <a href="#" className="js-menu nav-item">
-                            <span className="icon-list-unordered"></span>
+                            <span className="icon-list-unordered"/>
                         </a>
                     </div>
                 </nav>
@@ -42,11 +42,11 @@ var SignIn = module.exports = React.createClass({
                             </div>
                             <div className="input-symbol">
                                 <input type="email" name="email" placeholder="Your Email" ref='email'/>
-                                <span className="icon-email" title="Your Email"></span>
+                                <span className="icon-email" title="Your Email"/>
                             </div>
                             <div className="input-symbol">
                                 <input type="password" name="password" placeholder="Password" ref='password'/>
-                                <span className="icon-lock" title="Password"></span>
+                                <span className="icon-lock" title="Password"/>
                             </div>
                             <button type="submit" className="btn-primary">Sign in</button>
                         </form>
